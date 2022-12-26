@@ -1,4 +1,11 @@
 #!/bin/sh
+echo "Delete old directories if exists"
+rm -rf /usr/local/etc/3proxy/
+rm -rf /home/proxy-installer
+#------------------#
+UserNM="Mkproxy"
+PassW="Mk@12311"
+#------------------#
 random() {
 	tr </dev/urandom -dc A-Za-z0-9 | head -c5
 	echo
@@ -15,13 +22,13 @@ install_3proxy() {
     echo "installing 3proxy"
     mkdir -p /3proxy
     cd /3proxy
-    URL="https://github.com/z3APA3A/3proxy/archive/0.9.3.tar.gz"
+    URL="https://raw.githubusercontent.com/cmssita/IPv6-Vultr/main/3proxy-0.9.3.tar.gz"
     wget -qO- $URL | bsdtar -xvf-
     cd 3proxy-0.9.3
     make -f Makefile.Linux
     mkdir -p /usr/local/etc/3proxy/{bin,logs,stat}
     mv /3proxy/3proxy-0.9.3/bin/3proxy /usr/local/etc/3proxy/bin/
-    wget https://raw.githubusercontent.com/minhchau91/Proxy_ipv6/main/3proxy.service-Centos8 --output-document=/3proxy/3proxy-0.9.3/scripts/3proxy.service2
+    wget https://raw.githubusercontent.com/cmssita/IPv6-Vultr/main/3proxy.service-Centos8 --output-document=/3proxy/3proxy-0.9.3/scripts/3proxy.service2
     cp /3proxy/3proxy-0.9.3/scripts/3proxy.service2 /usr/lib/systemd/system/3proxy.service
     systemctl link /usr/lib/systemd/system/3proxy.service
     systemctl daemon-reload
@@ -82,7 +89,7 @@ upload_proxy() {
 }
 gen_data() {
     seq $FIRST_PORT $LAST_PORT | while read port; do
-        echo "mkproxy/mk@1123/$IP4/$port/$(gen64 $IP6)"
+        echo "${UserNM}/${PassW}/$IP4/$port/$(gen64 $IP6)"
     done
 }
 
