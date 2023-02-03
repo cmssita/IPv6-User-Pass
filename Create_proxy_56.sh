@@ -170,9 +170,9 @@ wget "https://raw.githubusercontent.com/cmssita/My-Prox/main/Rotation_56.sh" --o
 chmod 777 /root/Rotation.sh
 cat >>/var/spool/cron/root<<EOF
 #day - time
-#59 7 * * * /root/Rotation.sh > /root/Rotation_log.txt
+0 0 * * 1-5 /root/Rotation.sh > /root/Rotation_log.txt
 #minutes
 #*10 * * * * /root/Rotation.sh > /root/Rotation_log.txt
 #hour
-0 */12 * * * /root/Rotation.sh > /root/Rotation_log.txt
+#0 */12 * * * /root/Rotation.sh > /root/Rotation_log.txt
 EOF
