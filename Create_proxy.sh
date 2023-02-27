@@ -126,9 +126,9 @@ interface=eth0
 #        * ) echo "Please answer yes or no.";;
 #    esac
 #done
-Auth=strong
-User=MKproxy
-Pass=MKpasswd
+Auth=none
+User=mcproxy
+Pass=mcproxy022023
 
 #read -p "Please input start port :" FIRST_PORT
 #read -p "Please input start port :" LAST_PORT
