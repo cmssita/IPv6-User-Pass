@@ -127,8 +127,8 @@ interface=eth0
 #    esac
 #done
 Auth=none
-User=mcproxy
-Pass=mcproxy022023
+User=MKproxy
+Pass=MKpasswd
 
 #read -p "Please input start port :" FIRST_PORT
 #read -p "Please input start port :" LAST_PORT
