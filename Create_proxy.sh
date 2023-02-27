@@ -21,7 +21,7 @@ install_3proxy() {
     make -f Makefile.Linux
     mkdir -p /usr/local/etc/3proxy/{bin,logs,stat}
     mv /3proxy/3proxy-0.9.3/bin/3proxy /usr/local/etc/3proxy/bin/
-    wget https://raw.githubusercontent.com/cmssita/My-Prox/main/3proxy.service-Centos8 --output-document=/3proxy/3proxy-0.9.3/scripts/3proxy.service2
+    wget https://raw.githubusercontent.com/minhchau91/Proxy_ipv6/main/3proxy.service-Centos8 --output-document=/3proxy/3proxy-0.9.3/scripts/3proxy.service2
     cp /3proxy/3proxy-0.9.3/scripts/3proxy.service2 /usr/lib/systemd/system/3proxy.service
     systemctl link /usr/lib/systemd/system/3proxy.service
     systemctl daemon-reload
@@ -107,6 +107,7 @@ mkdir $WORKDIR && cd $_
 
 IP4=$(curl -4 -s icanhazip.com)
 checkIP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
+#IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 echo "Detected your ipv4: $IP4" 
 echo "Detected your ipv6: $checkIP6" 
 #read -p "What is your ipv6 prefix? (exp: /56, /64): " Prefix
@@ -132,7 +133,7 @@ Pass=MKpasswd
 #read -p "Please input start port :" FIRST_PORT
 #read -p "Please input start port :" LAST_PORT
 FIRST_PORT=30000
-LAST_PORT=33000
+LAST_PORT=35000
 
 rm -fv $WORKDIR/ipv6-subnet.txt
 cat >>$WORKDIR/ipv6-subnet.txt <<EOF
@@ -166,14 +167,20 @@ bash /etc/rc.local
 
 gen_proxy_file_for_user
 
-wget "https://raw.githubusercontent.com/cmssita/My-Prox/main/Rotation.sh" --output-document=/root/Rotation.sh
+wget "https://raw.githubusercontent.com/minhchau91/createproxy/main/Rotation.sh" --output-document=/root/Rotation.sh
 chmod 777 /root/Rotation.sh
 cat >>/var/spool/cron/root<<EOF
 #day - time
 #59 7 * * * /root/Rotation.sh > /root/Rotation_log.txt
+#59 21 * * * /root/Rotation.sh > /root/Rotation_log.txt
+#0 2 * * * /root/Rotation.sh > /root/Rotation_log.txt
+#0 14 * * * /root/Rotation.sh > /root/Rotation_log.txt
+0 0 * * 1-5 /root/Rotation.sh > /root/Rotation_log.txt
 #minutes
-#*30 * * * * /root/Rotation.sh > /root/Rotation_log.txt
+#*/30 * * * * /root/Rotation.sh > /root/Rotation_log.txt
+#*/10 * * * * /root/Rotation.sh > /root/Rotation_log.txt
 #hour
 #0 * * * * /root/Rotation.sh > /root/Rotation_log.txt
-0 */12 * * * /root/Rotation.sh > /root/Rotation_log.txt
+#0 */4 * * * /root/Rotation.sh > /root/Rotation_log.txt
+#0 */2 * * * /root/Rotation.sh > /root/Rotation_log.txt
 EOF
