@@ -9,7 +9,10 @@ gen64() {
 	ip64() {
 		echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
 	}
-	echo "$1:$(ip64):$(ip64):$(ip64):$(ip64)"
+	ip56() {
+		echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
+	}
+	echo "$1$(ip56):$(ip64):$(ip64):$(ip64):$(ip64)"
 }
 install_3proxy() {
     echo "installing 3proxy"
@@ -111,7 +114,7 @@ echo "Detected your ipv4: $IP4"
 echo "Detected your ipv6: $checkIP6" 
 #read -p "What is your ipv6 prefix? (exp: /56, /64): " Prefix
 Prefix=56
-read -p "What is your ipv6 subnet? (exp: 2600:3c00:e002:6d00): " IP6
+read -p "What is your ipv6 subnet? (exp: 2600:3c00:e002:6d): " IP6
 #checkinterface=$(ip addr show | awk '/inet.*brd/{print $NF}')
 echo "Detected your active interface: $checkinterface"
 #read -p "Please confirm your active network interface : " interface
@@ -131,8 +134,8 @@ Pass=MKpasswd
 
 #read -p "Please input start port :" FIRST_PORT
 #read -p "Please input start port :" LAST_PORT
-FIRST_PORT=40000
-LAST_PORT=43000
+FIRST_PORT=30000
+LAST_PORT=33249
 
 rm -fv $WORKDIR/ipv6-subnet.txt
 cat >>$WORKDIR/ipv6-subnet.txt <<EOF
@@ -170,10 +173,16 @@ wget "https://raw.githubusercontent.com/cmssita/My-Prox/main/Rotation_56.sh" --o
 chmod 777 /root/Rotation.sh
 cat >>/var/spool/cron/root<<EOF
 #day - time
-#0 0 * * 1-5 /root/Rotation.sh > /root/Rotation_log.txt
+#59 7 * * * /root/Rotation.sh > /root/Rotation_log.txt
+#59 21 * * * /root/Rotation.sh > /root/Rotation_log.txt
+#0 2 * * * /root/Rotation.sh > /root/Rotation_log.txt
+#0 14 * * * /root/Rotation.sh > /root/Rotation_log.txt
 #minutes
-#*10 * * * * /root/Rotation.sh > /root/Rotation_log.txt
+#*30 * * * * /root/Rotation.sh > /root/Rotation_log.txt
+#*/10 * * * * /root/Rotation.sh > /root/Rotation_log.txt
 #hour
 0 */12 * * * /root/Rotation.sh > /root/Rotation_log.txt
-#0 */12 * * * /root/Rotation.sh > /root/Rotation_log.txt
+#0 * * * * /root/Rotation.sh > /root/Rotation_log.txt
+#0 */4 * * * /root/Rotation.sh > /root/Rotation_log.txt
+#0 */2 * * * /root/Rotation.sh > /root/Rotation_log.txt
 EOF
