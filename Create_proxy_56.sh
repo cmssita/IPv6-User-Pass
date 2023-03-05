@@ -9,7 +9,10 @@ gen64() {
 	ip64() {
 		echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
 	}
-	echo "$1:$(ip64):$(ip64):$(ip64):$(ip64)"
+	ip56() {
+		echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
+	}
+	echo "$1$(ip56):$(ip64):$(ip64):$(ip64):$(ip64)"	
 }
 install_3proxy() {
     echo "installing 3proxy"
@@ -107,7 +110,6 @@ mkdir $WORKDIR && cd $_
 
 IP4=$(curl -4 -s icanhazip.com)
 checkIP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
-#IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 echo "Detected your ipv4: $IP4" 
 echo "Detected your ipv6: $checkIP6" 
 #read -p "What is your ipv6 prefix? (exp: /56, /64): " Prefix
