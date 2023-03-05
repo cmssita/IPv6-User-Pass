@@ -128,7 +128,7 @@ interface=eth0
 #        * ) echo "Please answer yes or no.";;
 #    esac
 #done
-Auth=Strong
+Auth=strong
 User=MKproxy
 Pass=MKpasswd
 
