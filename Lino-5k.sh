@@ -21,7 +21,7 @@ install_3proxy() {
     make -f Makefile.Linux
     mkdir -p /usr/local/etc/3proxy/{bin,logs,stat}
     mv /3proxy/3proxy-0.9.3/bin/3proxy /usr/local/etc/3proxy/bin/
-    wget https://raw.githubusercontent.com/cmssita/My-Prox/main/3proxy.service-Centos8 --output-document=/3proxy/3proxy-0.9.3/scripts/3proxy.service2
+    wget https://raw.githubusercontent.com/minhchau91/Proxy_ipv6/main/3proxy.service-Centos8 --output-document=/3proxy/3proxy-0.9.3/scripts/3proxy.service2
     cp /3proxy/3proxy-0.9.3/scripts/3proxy.service2 /usr/lib/systemd/system/3proxy.service
     systemctl link /usr/lib/systemd/system/3proxy.service
     systemctl daemon-reload
@@ -54,9 +54,9 @@ setgid 65535
 setuid 65535
 stacksize 6291456 
 flush
-auth none
+auth $Auth
 users $(awk -F "|" 'BEGIN{ORS="";} {print $1 ":CL:" $2 " "}' ${WORKDATA})
-$(awk -F "|" '{print "auth none\n"  \
+$(awk -F "|" '{print "auth " $3"\n" \
 "allow " $1 "\n" \
 "proxy -6 -n -a -p" $6 " -i" $5 " -e"$7"\n" \
 "flush\n"}' ${WORKDATA})
@@ -126,9 +126,9 @@ interface=eth0
 #        * ) echo "Please answer yes or no.";;
 #    esac
 #done
-Auth=strong
-User=MKproxy
-Pass=MKpasswd
+Auth=none
+User=mcproxy
+Pass=mcproxy032023
 
 #read -p "Please input start port :" FIRST_PORT
 #read -p "Please input start port :" LAST_PORT
