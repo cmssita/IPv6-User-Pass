@@ -167,7 +167,7 @@ bash /etc/rc.local
 
 gen_proxy_file_for_user
 
-wget "https://raw.githubusercontent.com/cmssita/My-Prox/main/Rotation.sh" --output-document=/root/Rotation.sh
+wget "https://raw.githubusercontent.com/cmssita/My-Prox/main/Rotation-5k.sh" --output-document=/root/Rotation.sh
 chmod 777 /root/Rotation.sh
 cat >>/var/spool/cron/root<<EOF
 #day - time
