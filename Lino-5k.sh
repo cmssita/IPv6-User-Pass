@@ -54,9 +54,9 @@ setgid 65535
 setuid 65535
 stacksize 6291456 
 flush
-auth strong
+auth none
 users $(awk -F "|" 'BEGIN{ORS="";} {print $1 ":CL:" $2 " "}' ${WORKDATA})
-$(awk -F "|" '{print "auth " $3"\n" \
+$(awk -F "|" '{print "auth none\n"  \
 "allow " $1 "\n" \
 "proxy -6 -n -a -p" $6 " -i" $5 " -e"$7"\n" \
 "flush\n"}' ${WORKDATA})
@@ -167,20 +167,4 @@ bash /etc/rc.local
 
 gen_proxy_file_for_user
 
-wget "https://raw.githubusercontent.com/cmssita/My-Prox/main/Rotation-5k.sh" --output-document=/root/Rotation.sh
-chmod 777 /root/Rotation.sh
-cat >>/var/spool/cron/root<<EOF
-#day - time
-59 7 * * * /root/Rotation.sh > /root/Rotation_log.txt
-#59 21 * * * /root/Rotation.sh > /root/Rotation_log.txt
-#0 2 * * * /root/Rotation.sh > /root/Rotation_log.txt
-#0 14 * * * /root/Rotation.sh > /root/Rotation_log.txt
-#minutes
-#*/30 * * * * /root/Rotation.sh > /root/Rotation_log.txt
-#*/10 * * * * /root/Rotation.sh > /root/Rotation_log.txt
-#*/5 * * * * /root/Rotation.sh > /root/Rotation_log.txt
-#hour
-#0 * * * * /root/Rotation.sh > /root/Rotation_log.txt
-#0 */4 * * * /root/Rotation.sh > /root/Rotation_log.txt
-#0 */2 * * * /root/Rotation.sh > /root/Rotation_log.txt
-EOF
+upload_proxy
