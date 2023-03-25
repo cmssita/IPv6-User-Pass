@@ -54,51 +54,52 @@ setgid 65535
 setuid 65535
 stacksize 6291456 
 flush
-auth $Auth
-users $(awk -F "|" 'BEGIN{ORS="";} {print $1 ":CL:" $2 " "}' ${WORKDATA})
-$(awk -F "|" '{print "auth " $3"\n" \
+auth none
+users $(awk -F "/" 'BEGIN{ORS="";} {print $1 ":CL:" $2 " "}' ${WORKDATA})
+$(awk -F "/" '{print "auth none\n" \
 "allow " $1 "\n" \
-"proxy -6 -n -a -p" $6 " -i" $5 " -e"$7"\n" \
+"proxy -6 -n -a -p" $4 " -i" $3 " -e"$5"\n" \
 "flush\n"}' ${WORKDATA})
 EOF
 }
 
 gen_proxy_file_for_user() {
-    cat >/root/proxylist.txt <<EOF
-$(awk -F "|" '{print $5 ":" $6}' ${WORKDATA})
+    cat >proxy.txt <<EOF
+$(awk -F "/" '{print $3 ":" $4}' ${WORKDATA})
 EOF
 }
 
 upload_proxy() {
     cd $WORKDIR
-    local PASS1=$(random)
-    zip --password $PASS1 proxy.zip /root/proxylist.txt
+    local PASS=$(random)
+    zip proxy.zip proxy.txt
     URL=$(curl -F "file=@proxy.zip" https://file.io)
 
-    echo "Proxy is ready! Format IP:PORT:LOGIN:PASS1"
+    echo "Proxy is ready! Format IP:PORT:LOGIN:PASS"
     echo "Download zip archive from: ${URL}"
-    echo "Password: ${PASS1}"
 
 }
 gen_data() {
     seq $FIRST_PORT $LAST_PORT | while read port; do
-        echo "$User|$Pass|$Auth|$interface|$IP4|$port|$(gen64 $IP6)|$Prefix"
+        echo "mcdn/huladeca112/$IP4/$port/$(gen64 $IP6)"
     done
 }
 
 gen_iptables() {
     cat <<EOF
-    $(awk -F "|" '{print "iptables -I INPUT -p tcp --dport " $6 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA}) 
+    $(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA}) 
 EOF
 }
 
 gen_ifconfig() {
     cat <<EOF
-$(awk -F "|" '{print "ifconfig " $4 " inet6 add " $7"/"$8}' ${WORKDATA})
+$(awk -F "/" '{print "ifconfig enp1s0 inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
 }
 echo "installing apps"
 yum -y install gcc net-tools bsdtar zip make >/dev/null
+
+install_3proxy
 
 echo "working folder = /home/proxy-installer"
 WORKDIR="/home/proxy-installer"
@@ -106,46 +107,12 @@ WORKDATA="${WORKDIR}/data.txt"
 mkdir $WORKDIR && cd $_
 
 IP4=$(curl -4 -s icanhazip.com)
-checkIP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
-#IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
-echo "Detected your ipv4: $IP4" 
-echo "Detected your ipv6: $checkIP6" 
-#read -p "What is your ipv6 prefix? (exp: /56, /64): " Prefix
-Prefix=64
-read -p "What is your ipv6 subnet? (exp: 2600:3c00:e002:6d00): " IP6
-#checkinterface=$(ip addr show | awk '/inet.*brd/{print $NF}')
-echo "Detected your active interface: $checkinterface"
-#read -p "Please confirm your active network interface : " interface
-interface=eth0
-
-#while true; do
-#    read -p "Do you want to create auth for your proxy? (Y/N): " authConfirm
-#    case $authConfirm in
-#        [Yy]* ) Auth=strong; read -p "Input UserName? " User; read -p "Input PassWord: " Pass; break;;
-#        [Nn]* ) Auth=none;User=minhchau; Pass=minhchau@123; break;;
-#        * ) echo "Please answer yes or no.";;
-#    esac
-#done
-Auth=none
-User=mcproxy
-Pass=mcproxy032023
-
-#read -p "Please input start port :" FIRST_PORT
-#read -p "Please input start port :" LAST_PORT
-FIRST_PORT=30000
-LAST_PORT=33000
-
-rm -fv $WORKDIR/ipv6-subnet.txt
-cat >>$WORKDIR/ipv6-subnet.txt <<EOF
-${IP6}|${Prefix}|${User}|${Pass}|${interface}|${Auth}
-EOF
-
-
-install_3proxy
+IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 
 echo "Internal ip = ${IP4}. Exteranl sub for ip6 = ${IP6}"
 
-
+FIRST_PORT=40000
+LAST_PORT=49999
 
 gen_data >$WORKDIR/data.txt
 gen_iptables >$WORKDIR/boot_iptables.sh
@@ -156,7 +123,7 @@ gen_3proxy >/usr/local/etc/3proxy/3proxy.cfg
 
 cat >>/etc/rc.local <<EOF
 systemctl start NetworkManager.service
-ifup ${interface}
+ifup enp1s0
 bash ${WORKDIR}/boot_iptables.sh
 bash ${WORKDIR}/boot_ifconfig.sh
 ulimit -n 65535
