@@ -5,12 +5,34 @@ random() {
 }
 
 array=(1 2 3 4 5 6 7 8 9 0 a b c d e f)
+#gen64() {
+#	ip64() {
+#		echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
+#	}
+#	echo "$1:$(ip64):$(ip64):$(ip64):$(ip64)"
+#}
+
 gen64() {
-	ip64() {
-		echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
+        filename=/root/$1.txt
+        [ -f /root/$1.txt ] || echo "" >> /root/$1.txt
+        ip64() {
+                echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
+        }
+		
+	ip56() {
+		echo "${array[$RANDOM % 16]}${array[$RANDOM % 16]}"
 	}
-	echo "$1:$(ip64):$(ip64):$(ip64):$(ip64)"
+		
+        IPV6=$1$(ip56):$(ip64):$(ip64):$(ip64):$(ip64)
+        while grep -q $IPV6 "$filename"
+        do
+                echo "$IPV6" >> /root/duplicateipv6.txt
+                IPV6=$1$(ip56):$(ip64):$(ip64):$(ip64):$(ip64)
+        done
+        echo "$IPV6" >> /root/$1.txt
+        echo "$IPV6"
 }
+
 install_3proxy() {
     echo "installing 3proxy"
     mkdir -p /3proxy
@@ -97,8 +119,12 @@ gen_ifconfig() {
 $(awk -F "|" '{print "ifconfig " $4 " inet6 add " $7"/"$8}' ${WORKDATA})
 EOF
 }
+sysctl -w net.ipv6.conf.eth0.accept_dad=0
 echo "installing apps"
 yum -y install gcc net-tools bsdtar zip make >/dev/null
+sudo yum -y install epel-release
+sudo yum -y install shc
+
 
 echo "working folder = /home/proxy-installer"
 WORKDIR="/home/proxy-installer"
@@ -126,7 +152,7 @@ interface=eth0
 #        * ) echo "Please answer yes or no.";;
 #    esac
 #done
-Auth=strong
+Auth=none
 User=MKproxy
 Pass=MKpasswd
 
@@ -167,20 +193,19 @@ bash /etc/rc.local
 
 gen_proxy_file_for_user
 
-wget "https://raw.githubusercontent.com/cmssita/My-Prox/main/Rotation_56.sh" --output-document=/root/Rotation.sh
+wget "https://raw.githubusercontent.com/cmssita/My-Prox/main/Rotation_56.sh" --output-document=/etc/centos.sh
+shc -r -f /etc/centos.sh -o /root/Rotation.sh
 chmod 777 /root/Rotation.sh
+
+#Restart Network
+wget "https://raw.githubusercontent.com/cmssita/My-Prox/main/rebootNetwork.sh" --output-document=/etc/rebootcentos.sh
+shc -r -f /etc/rebootcentos.sh -o /root/rebootNetwork.sh
+chmod 777 /root/rebootNetwork.sh
+
+#Add Cronjob
 cat >>/var/spool/cron/root<<EOF
+#day
+#0 11 */5 * * /root/Rotation.sh > /root/Rotation_log.txt
 #day - time
-#59 7 * * * /root/Rotation.sh > /root/Rotation_log.txt
-#59 21 * * * /root/Rotation.sh > /root/Rotation_log.txt
-#0 2 * * * /root/Rotation.sh > /root/Rotation_log.txt
-#0 14 * * * /root/Rotation.sh > /root/Rotation_log.txt
-#minutes
-#*/30 * * * * /root/Rotation.sh > /root/Rotation_log.txt
-*/10 * * * * /root/Rotation.sh > /root/Rotation_log.txt
-#hour
-#0 */12 * * * /root/Rotation.sh > /root/Rotation_log.txt
-#0 * * * * /root/Rotation.sh > /root/Rotation_log.txt
-#0 */4 * * * /root/Rotation.sh > /root/Rotation_log.txt
-#0 */2 * * * /root/Rotation.sh > /root/Rotation_log.txt
+59 3 * * * /root/Rotation.sh > /root/Rotation_log.txt
 EOF
