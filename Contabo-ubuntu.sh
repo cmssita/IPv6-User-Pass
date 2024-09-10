@@ -183,10 +183,10 @@ fi
 echo "Detected your active interface: $checkinterface"
 
 Auth=none
-User=krlive
-Pass=krlive2024
-FIRST_PORT=20000
-LAST_PORT=20124
+User=MKproxy
+Pass=MKpasswd
+FIRST_PORT=30000
+LAST_PORT=33000
 
 rm -fv $WORKDIR/ipv6-subnet.txt
 cat >>$WORKDIR/ipv6-subnet.txt <<EOF
